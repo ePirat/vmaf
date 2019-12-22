@@ -263,6 +263,32 @@ extern "C" {
             cpu = VMAF_CPU_NONE;
         }
 
+#if defined(__CYGWIN__) || defined(__MINGW32__)
+        char buf[260], *str = NULL, *temp = NULL;
+        unsigned int size = 1;
+        FILE *cygpath;
+        char cygpath_cmd[260] = "cygpath -m ";
+
+        strcat(cygpath_cmd, model_path);
+
+        if (NULL == (cygpath = popen(cygpath_cmd, "rt"))) {
+            perror("popen");
+            return -99;
+        }
+
+        while (fgets(buf, sizeof(buf), cygpath) != NULL) {
+            unsigned int strlength = strlen(buf);
+
+            if ((temp = (char *)realloc(str, size + strlength)) != NULL)
+                str = temp;
+            strcpy(str + size - 1, buf);
+            size += strlength;
+        }
+        pclose(cygpath);
+        strncpy(model_path, buf, sizeof(buf));
+        model_path[strlen(model_path) - 1] = 0;
+#endif
+
         try {
             double score = RunVmaf(fmt, width, height, read_frame, user_data, model_path, log_path, log_fmt, d_c, e_t, d_p, d_s, d_m_s, pool_method, n_thread, n_subsample, enable_conf_interval);
             *vmaf_score = score;
