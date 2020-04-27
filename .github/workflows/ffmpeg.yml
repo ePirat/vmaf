@@ -48,9 +48,12 @@ jobs:
           git clone -q --branch master --depth=1 "https://github.com/FFmpeg/FFmpeg" ffmpeg
           [ -d "$HOME/.ccache" ] && sudo chown -R runner: "$HOME/.ccache"
           cd ffmpeg
-          ./configure --enable-version3 --enable-pic --cc="$CC" --cxx="$CXX" || { less ffbuild/config.log; exit 1; }
+          ./configure --enable-version3 --cc="$CC" --cxx="$CXX" || { less ffbuild/config.log; exit 1; }
       - name: Cat config.asm
         run: cat ffmpeg/config.asm
       - name: Make FFmpeg
         run: |
           sudo make -C ffmpeg -j $(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu) V=1 install
+      - name: Output config.log
+        if: failure()
+        run: cat ffmpeg/ffbuild/config.log
