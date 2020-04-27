@@ -77,7 +77,7 @@ jobs:
           meson setup libvmaf libvmaf/build --buildtype release
       - name: Run ninja
         run: |
-          sudo ninja -vC libvmaf/build
+          sudo ninja -vC libvmaf/build install
       - name: Run tests
         run: |
           sudo ninja -vC libvmaf/build test
