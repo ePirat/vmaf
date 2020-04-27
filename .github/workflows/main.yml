@@ -42,13 +42,11 @@ jobs:
           brew install ccache nasm pkg-config
       - uses: actions/checkout@v2
       - name: Prepare FFmpeg
-        env:
-          CFLAGS: -static
         run: |
           git clone -q --branch master --depth=1 "https://github.com/FFmpeg/FFmpeg" ffmpeg
           [ -d "$HOME/.ccache" ] && sudo chown -R runner: "$HOME/.ccache"
           cd ffmpeg
-          ./configure --enable-version3 --cc="$CC" --cxx="$CXX" || { less ffbuild/config.log; exit 1; }
+          ./configure --enable-version3 --extra-cflags="-static" --cc="$CC" --cxx="$CXX" || { less ffbuild/config.log; exit 1; }
       - name: Cat config.asm
         run: cat ffmpeg/config.asm
       - name: Make FFmpeg
